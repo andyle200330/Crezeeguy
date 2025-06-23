@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.*;
+import java.io.*;
 
 public class Main extends JFrame {
     private JLabel jsfirstname;
@@ -16,6 +18,7 @@ public class Main extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
+
         Jbutton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -24,7 +27,10 @@ public class Main extends JFrame {
         });
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost",8888);
+
         new Main();
+
     }
 }
