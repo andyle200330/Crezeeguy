@@ -36,33 +36,39 @@ public class Server {
     }
 
     private static void initializeDatabase() throws SQLException {
-        // Sử dụng SQLite làm database đơn giản
         try {
-            Class.forName("org.sqlite.JDBC");
-            dbConnection = DriverManager.getConnection("jdbc:sqlite:client_keys.db");
+            // Load MySQL driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // Tạo bảng lưu thông tin client
+            // Thay đổi thông tin kết nối tương ứng
+            String url = "jdbc:mysql://localhost:3306/mydatabase";
+            String user = "root";
+            String password = "";
+
+            dbConnection = DriverManager.getConnection(url, user, password);
+
+            // Tạo bảng nếu chưa có
             String createTable = """
-                CREATE TABLE IF NOT EXISTS client_keys (
-                    client_id TEXT PRIMARY KEY,
-                    public_key TEXT NOT NULL,
-                    aes_key TEXT NOT NULL,
-                    iv TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-                """;
+            CREATE TABLE IF NOT EXISTS client_keys (
+                client_id VARCHAR(255) PRIMARY KEY,
+                public_key TEXT NOT NULL,
+                aes_key TEXT NOT NULL,
+                iv TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """;
 
             Statement stmt = dbConnection.createStatement();
             stmt.execute(createTable);
             stmt.close();
 
-            System.out.println("Database đã được khởi tạo");
+            System.out.println("Database đã được khởi tạo bằng MySQL");
 
         } catch (ClassNotFoundException e) {
-            // Nếu không có SQLite driver, sử dụng HashMap để lưu trong memory
-            System.out.println("Không tìm thấy SQLite driver, sử dụng memory storage");
+            System.out.println("Không tìm thấy MySQL driver, kiểm tra thư viện JDBC.");
         }
     }
+
 
     private static void handleClient(Socket socket) {
         try {
@@ -73,6 +79,7 @@ public class Server {
                 try {
                     // Nhận SecureMessage từ client
                     SecureMessage secureMessage = (SecureMessage) in.readObject();
+
 
                     // Xử lý tin nhắn bảo mật
                     boolean isValid = processSecureMessage(clientId, secureMessage);
