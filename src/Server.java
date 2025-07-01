@@ -176,9 +176,13 @@ public class Server {
             if (dbConnection != null) {
                 // Lưu vào SQLite database
                 String sql = """
-                    INSERT OR REPLACE INTO client_keys (client_id, public_key, aes_key, iv)
+                    INSERT INTO client_keys (client_id, public_key, aes_key, iv)
                     VALUES (?, ?, ?, ?)
-                    """;
+                    ON DUPLICATE KEY UPDATE
+                        public_key = VALUES(public_key),
+                        aes_key = VALUES(aes_key),
+                        iv = VALUES(iv)
+                """;
 
                 PreparedStatement pstmt = dbConnection.prepareStatement(sql);
                 pstmt.setString(1, clientId);
